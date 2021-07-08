@@ -10,7 +10,8 @@ Props to https://github.com/vrtadmin/FIRST-plugin-ida/blob/master/first_plugin_i
 for the workaround on the threading issue, for IDA Pro >= 7.2
 
 ## Quick start
-```
+
+```python
 >>> import rpyc
 >>> c = rpyc.connect("ida.rpyc.server", 18812)
 #
@@ -25,12 +26,12 @@ True
 ```
 
 For more facility, you can alias it:
-```
+```python
 >>> idc = c.root.idc
 ```
 
 Then, it becomes super readable
-```
+```python
 >>> idc.jumpto( idc.get_name_ea_simple("DriverEntry") )
 True
 >>> idc.set_cmt( idc.here(), "@hugsy was here", 1)
@@ -40,7 +41,7 @@ True
 For generator objects, you now need to use the wrapper `c.root.iterate()`.
 
 Example:
-```
+```python
 >>> idc = c.root.idc
 >>> idautils = c.root.idautils
 >>> for ea in c.root.iterate( idautils.Functions() ):
