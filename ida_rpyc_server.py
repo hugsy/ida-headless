@@ -67,6 +67,7 @@ import idaapi
 import idautils
 import ida_bytes
 import ida_funcs
+import ida_hexrays
 
 # exported modules must be imported first
 import sys
@@ -74,27 +75,27 @@ import os
 
 PLUGIN_NAME = "RunRpycServer"
 PLUGIN_HOTKEY = "Ctrl-Alt-K"
-PLUGIN_VERSION = "0.2"
+PLUGIN_VERSION = "0.3"
 PLUGIN_AUTHOR = "@_hugsy_"
 
 HOST, PORT = "0.0.0.0", 18812
 DEBUG = False
 
 
-EXPOSED_MODULES = [idaapi, idc, idautils, os, sys]
+EXPOSED_MODULES = [idaapi, idc, idautils, ida_hexrays, os, sys]
 
 def xlog(x):
     sys.stderr.write("{} - {}\n".format(threading.current_thread().name, x)) and sys.stderr.flush()
 
 def err(msg):
-    xlog("[!] {}".format(msg,))
+    xlog(f"[!] {msg}")
 
 def ok(msg):
-    xlog("[+] {}".format(msg,))
+    xlog(f"[+] {msg}")
 
 def dbg(msg):
     if DEBUG:
-        xlog("[*] {}".format(msg,))
+        xlog(f"[*] {msg}")
 
 
 
@@ -143,12 +144,12 @@ class IdaRpycService(rpyc.Service):
     def on_connect(self, conn):
         ok("connect open: {}".format(conn,))
         for mod in EXPOSED_MODULES:
-            setattr(self, "exposed_{}".format(mod.__name__), g_IdaWrapper)
+            setattr(self, f"exposed_{mod.__name__}", g_IdaWrapper)
         return
 
 
     def on_disconnect(self, conn):
-        ok("connection closed: {}".format(conn,))
+        ok(f"connection closed: {str(conn)}")
         return
 
 
@@ -161,7 +162,7 @@ class IdaRpycService(rpyc.Service):
 
 
     def exposed_iterate(self, iterator):
-        default = "IDoNotExistButNoReallyISeriouslyDoNotAndCannotExist {}".format(random.randint(0, 65535),)
+        default = f"IDoNotExistButNoReallyISeriouslyDoNotAndCannotExist {random.randint(0, 65535)}"
         holder = [default]
         def trampoline():
             try:
@@ -210,13 +211,13 @@ t = None
 def main():
     global t
     if t is not None:
-        err("thread is already running as {}".format(t))
+        err(f"thread is already running as {str(t)}")
         return
 
     t = threading.Thread(target=start)
     t.daemon = True
     t.start()
-    ok("service listening on {}:{}...".format(HOST, PORT))
+    ok(f"service listening on {HOST}:{PORT}...")
 
 
 class dummy(idaapi.plugin_t):
